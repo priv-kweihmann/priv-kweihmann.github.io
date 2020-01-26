@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+## SPDX-License-Identifier: BSD-2-Clause
+## Copyright (c) 2020, Konrad Weihmann
+
+import argparse
+import copy
+import glob
+import json
+import os
+import sys
+
+from pygments import highlight
+from pygments import lexers
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
+
+result = []
+
+def extract_items(_input, base_source_path, _offset=3):
+    result = []
+    _default = {
+        "PackageName": "",
+        "Tool": "",
+        "Severity": "",
+        "File": "",
+        "ID": "",
+        "Line": "",
+        "Message": "",
+        "Scope": ""
+    }
+    for item in _input:
+        try:
+            source_path = os.path.join(
+                base_source_path, item["PackageName"], item["File"])
+            try:
+                _lexer = lexers.get_lexer_for_filename(source_path)
+            except ClassNotFound:
+                _lexer = lexers.get_lexer_by_name("text")
+            _res = copy.copy(item)
+            _res = {**_default, **_res}
+            try:
+                with open(source_path) as f:
+                    lines = [x.strip("\n") for x in f.readlines()]
+                _line_start = max(0, int(item["Line"]) - _offset)
+                _line_end = min(len(lines), int(item["Line"]) + _offset)
+
+                _formatter = HtmlFormatter(
+                    linenos="inline", noclasses=True, linenostart=_line_start + 1)
+                _res["details"] = highlight(
+                    "\n".join(lines[_line_start:_line_end]), _lexer, _formatter)
+            except Exception as e:
+                _res["details"] = "Can't provide preview"
+                sys.stderr.write(str(e) + "\n")
+            result.append(_res)
+        except Exception as e:
+            sys.stderr.write(str(e) + "\n")
+    return result
+
+
+def get_all_datamodel(_base_path, base_source_path):
+    result = []
+    for f in glob.glob(_base_path + "/**/*.dm", recursive=True):
+        with open(f) as j:
+            result += extract_items(json.load(j), base_source_path)
+    return result
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(
+        prog="report", description='Create findings report')
+    parser.add_argument("basepath", help="Path to SCA_EXPORT_DIR")
+    parser.add_argument("sourcespath", help="Path to SCA_EXPORT_FINDING_DIR")
+    parser.add_argument("output", help="Where to output")
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    _args = create_parser()
+    _data = {"data": get_all_datamodel(_args.basepath, _args.sourcespath)}
+    with open(_args.output, "w") as o:
+        json.dump(_data, o)

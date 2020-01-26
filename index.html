@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>meta-sca report</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/cr-1.5.2/r-2.2.3/sc-2.0.1/sp-1.0.1/datatables.min.css" />
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/cr-1.5.2/r-2.2.3/sc-2.0.1/sp-1.0.1/datatables.min.js"></script>
+
+    <style>
+        td.details-control {
+            background: lightslategray no-repeat center center;
+            cursor: pointer;
+        }
+
+        tr.shown td.details-control {
+            background: slategray no-repeat center center;
+        }
+    </style>
+    <script type="text/javascript">
+        /* Formatting function for row details - modify as you need */
+        function format(d) {
+            return d.details;
+        }
+
+        function create_table() {
+            var table = $('#main').DataTable({
+                "ajax": "data/" + $('#branch').val() + "/result.json",
+                "columns": [
+                    {
+                        "className": 'details-control',
+                        "orderable": true,
+                        "data": null,
+                        "defaultContent": ''
+                    },
+                    { "data": "PackageName", "searchable": true },
+                    { "data": "Tool", "searchable": true },
+                    { "data": "Severity", "searchable": true },
+                    { "data": "File", "searchable": true },
+                    { "data": "ID", "searchable": true },
+                    { "data": "Line", "searchable": true },
+                    { "data": "Message", "searchable": true },
+                    { "data": "Scope", "searchable": true },
+                ],
+                "order": [[3, 'asc']]
+            });
+        }
+
+        $(document).ready(function () {
+            create_table();
+            // Add event listener for opening and closing details
+            $('#main tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = $('#main').DataTable().row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+        });
+
+        function reinit() {
+            $('#main').DataTable().clear().destroy();
+            create_table();
+        }
+    </script>
+</head>
+
+<body>
+    <h1>meta-sca status</h1>
+    <p>Here you can see the current finding found by <a href="https://github.com/priv-kweihmann/meta-sca"></a> CI pipeline </p>
+    <hr/>
+    Get information for branch: 
+    <select id="branch" onchange="reinit();">
+        <option value="master" selected="selected">master</option> 
+        <option value="zeus">zeus</option> 
+        <option value="warrior">warrior</option> 
+        <option value="thud">thud</option> 
+    </select>
+    <hr/>
+    <table id="main" class="display">
+        <thead>
+            <tr>
+                <th></th>
+                <th>PackageName</th>
+                <th>Tool</th>
+                <th>Severity</th>
+                <th>File</th>
+                <th>ID</th>
+                <th>Line</th>
+                <th>Message</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th></th>
+                <th>PackageName</th>
+                <th>Tool</th>
+                <th>Severity</th>
+                <th>File</th>
+                <th>ID</th>
+                <th>Line</th>
+                <th>Message</th>
+                <th>Scope</th>
+            </tr>
+        </tfoot>
+    </table>
+</body>
