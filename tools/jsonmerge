@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 
 from jsonmerge import merge
 
@@ -18,8 +19,9 @@ if __name__ == '__main__':
     schema = {"data": { 'mergeStrategy': 'append'} }
     for f in _args.files:
         try:
-            with open(f) as i:
-                _res = merge(_res, json.load(i), schema)
+            if os.path.basename(f) != os.path.basename(_args.output):
+                with open(f) as i:
+                    _res = merge(_res, json.load(i), schema)
         except:
             pass
     _res["data"] = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
