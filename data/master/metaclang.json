@@ -1,8 +1,1 @@
-{"data": [{"File": "logintest.c", "Line": "64", "Column": "1", "Severity": "warning", \
-  "Message": "%d in format string (no. 12) requires int but the argument type is unsigned int.", \
-  "ID": "invalidPrintfArgType_sint", \
-  "PackageName": "openssh", \
-  "Tool": "cppcheck", \
-  "Scope": "functional", \
-  "details": "None here" \
-}]}
+{"data": [{"File": "logintest.c", "Line": "64", "Column": "1", "Severity": "warning", "Message": "%d in format string (no. 12) requires int but the argument type is unsigned int.", "ID": "invalidPrintfArgType_sint", "PackageName": "openssh", "Tool": "cppcheck", "Scope": "functional", "details": "None here" }]}
