@@ -10,7 +10,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         prog="jsonmerge", description='Merge JSON files')
     parser.add_argument("output", help="Where to output")
-    parser.add_argument("files", nargs="+", help="Where to output")
+    parser.add_argument("files", nargs="+", help="What's the input")
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -22,8 +22,8 @@ if __name__ == '__main__':
             if os.path.basename(f) != os.path.basename(_args.output):
                 with open(f) as i:
                     _res = merge(_res, json.load(i), schema)
-        except:
-            pass
+        except Exception as e:
+            print("Exception: {}".format(e))
     _res["data"] = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
     with open(_args.output, "w") as o:
         json.dump(_res, o)
