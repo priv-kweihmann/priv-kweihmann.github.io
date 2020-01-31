@@ -4,8 +4,6 @@ import argparse
 import json
 import os
 
-from jsonmerge import merge
-
 def create_parser():
     parser = argparse.ArgumentParser(
         prog="jsonmerge", description='Merge JSON files')
@@ -16,14 +14,15 @@ def create_parser():
 if __name__ == '__main__':
     _args = create_parser()
     _res = { "data": []}
-    schema = {"data": { 'mergeStrategy': 'append'} }
     for f in _args.files:
         try:
             if os.path.basename(f) != os.path.basename(_args.output):
+                print("Reading {}".format(f))
                 with open(f) as i:
-                    _res = merge(_res, json.load(i), schema)
+                    _res["data"] += json.load(i)["data"]
         except Exception as e:
             print("Exception: {}".format(e))
     _res["data"] = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
+    print("Found overall {} items".format(len(_res["data"])))
     with open(_args.output, "w") as o:
         json.dump(_res, o)
