@@ -75,6 +75,7 @@ def create_parser():
 
 if __name__ == '__main__':
     _args = create_parser()
-    _data = {"data": get_all_datamodel(_args.basepath, _args.sourcespath)}
+    _data = get_all_datamodel(_args.basepath, _args.sourcespath)
+    _data = {"data": sorted(_data, key = lambda i: i['File']) }
     with open(_args.output, "w") as o:
         json.dump(_data, o, sort_keys=True)

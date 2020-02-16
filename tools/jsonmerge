@@ -22,7 +22,8 @@ if __name__ == '__main__':
                     _res["data"] += json.load(i)["data"]
         except Exception as e:
             print("Exception: {}".format(e))
-    _res["data"] = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
+    _data = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
+    _res["data"] = sorted(_data, key = lambda i: i['File']) 
     print("Found overall {} items".format(len(_res["data"])))
     with open(_args.output, "w") as o:
         json.dump(_res, o, sort_keys=True)
