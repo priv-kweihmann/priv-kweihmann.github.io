@@ -30,7 +30,7 @@ def extract_items(_input, base_source_path, _offset=3):
     }
     for item in _input:
         try:
-            source_path = os.path.join(base_source_path, item["File"])
+            source_path = os.path.join(base_source_path, "..", item["File"])
             try:
                 _lexer = lexers.get_lexer_for_filename(source_path)
             except ClassNotFound:
