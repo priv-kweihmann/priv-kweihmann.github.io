@@ -25,4 +25,4 @@ if __name__ == '__main__':
     _res["data"] = [dict(s) for s in set(frozenset(d.items()) for d in _res["data"])]
     print("Found overall {} items".format(len(_res["data"])))
     with open(_args.output, "w") as o:
-        json.dump(_res, o)
+        json.dump(_res, o, sort_keys=True)

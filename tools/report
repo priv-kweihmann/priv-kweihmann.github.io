@@ -77,4 +77,4 @@ if __name__ == '__main__':
     _args = create_parser()
     _data = {"data": get_all_datamodel(_args.basepath, _args.sourcespath)}
     with open(_args.output, "w") as o:
-        json.dump(_data, o)
+        json.dump(_data, o, sort_keys=True)
