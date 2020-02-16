@@ -8,7 +8,8 @@
         href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/cr-1.5.2/r-2.2.3/sc-2.0.1/sp-1.0.1/datatables.min.css" />
     <script type="text/javascript"
         src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/cr-1.5.2/r-2.2.3/sc-2.0.1/sp-1.0.1/datatables.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css" />
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <style>
         td.details-control {
             background: lightslategray no-repeat center center;
@@ -26,29 +27,77 @@
         }
 
         function create_table() {
-            var table = $('#main').DataTable({
-                "ajax": "data/" + $('#branch').val() + "/result.json",
-                "columns": [
-                    {
-                        "className": 'details-control',
-                        "orderable": true,
-                        "data": null,
-                        "defaultContent": ''
-                    },
-                    { "data": "PackageName", "searchable": true },
-                    { "data": "Tool", "searchable": true },
-                    { "data": "Severity", "searchable": true },
-                    { "data": "File", "searchable": true },
-                    { "data": "ID", "searchable": true },
-                    { "data": "Line", "searchable": true },
-                    { "data": "Message", "searchable": true },
-                    { "data": "Scope", "searchable": true },
-                ],
-                "order": [[3, 'asc']]
+            var a = $.getJSON({
+                url: "data/" + $('#branch').val() + "/result.json",
+                success: function (data) {
+                    var table = $('#main').DataTable({
+                        data: data.data,
+                        columns: [
+                            {
+                                "className": 'details-control',
+                                "orderable": true,
+                                "data": null,
+                                "defaultContent": ''
+                            },
+                            { "data": "PackageName", "searchable": true },
+                            { "data": "Tool", "searchable": true },
+                            { "data": "Severity", "searchable": true },
+                            { "data": "File", "searchable": true },
+                            { "data": "ID", "searchable": true },
+                            { "data": "Line", "searchable": true },
+                            { "data": "Message", "searchable": true },
+                            { "data": "Scope", "searchable": true },
+                        ],
+                        order: [[3, 'asc']]
+                    });
+
+                    _seriesdata = {
+                        labels: ["Security Error", "Security Warning", "Security Info",
+                            "Functional Error", "Functional Warning", "Functional Info",
+                            "Style Error", "Style Warning", "Style Info"],
+                        series: [
+                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "info" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "info" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "info" }).length
+                        ]
+                    };
+                    var mychart = $('#chart-bar');
+                    mychart.get(0).__chartist__.update(_seriesdata);
+                    var mychart = $('#chart-pie');
+                    mychart.get(0).__chartist__.update(_seriesdata);
+                },
+                error: function () {
+                    console.log("error");
+                    var table = $('#main').DataTable({ data: [] });
+                    _seriesdata = {
+                        labels: [],
+                        series: []
+                    };
+                    var mychart = $('#chart-bar');
+                    mychart.get(0).__chartist__.update(_seriesdata);
+                    var mychart = $('#chart-pie');
+                    mychart.get(0).__chartist__.update(_seriesdata);
+                }
             });
         }
 
         $(document).ready(function () {
+            // Create a chart
+            var options_bar = {
+                distributeSeries: true
+            };
+            var options_pie = {
+                distributeSeries: true,
+                showLabel: false
+            };
+            new Chartist.Bar('#chart-bar', {}, options_bar);
+            new Chartist.Pie('#chart-pie', {}, options_pie);
             create_table();
             // Add event listener for opening and closing details
             $('#main tbody').on('click', 'td.details-control', function () {
@@ -70,6 +119,10 @@
 
         function reinit() {
             $('#main').DataTable().clear().destroy();
+            var mychart = $('#chart-bar');
+            mychart.get(0).__chartist__.update({});
+            var mychart = $('#chart-pie');
+            mychart.get(0).__chartist__.update({});
             create_table();
         }
     </script>
@@ -77,16 +130,23 @@
 
 <body>
     <h1>meta-sca status</h1>
-    <p>Here you can see the current findings found by <a href="https://github.com/priv-kweihmann/meta-sca"></a> CI pipeline </p>
-    <hr/>
-    Get information for branch: 
+    <p>Here you can see the current findings found by <a href="https://github.com/priv-kweihmann/meta-sca"></a> CI
+        pipeline </p>
+    <hr />
+    Get information for branch:
     <select id="branch" onchange="reinit();">
-        <option value="master" selected="selected">master</option> 
-        <option value="zeus">zeus</option> 
-        <option value="warrior">warrior</option> 
-        <option value="thud">thud</option> 
+        <option value="master" selected="selected">master</option>
+        <option value="zeus">zeus</option>
+        <option value="warrior">warrior</option>
+        <option value="thud">thud</option>
     </select>
-    <hr/>
+    <hr />
+    <div style="">
+        <div class="ct-chart" style="float:left;width:48%;" id="chart-bar"></div>
+        <div class="ct-chart" style="float:left;width:48%;" id="chart-pie"></div>
+    </div>
+    <div style="clear: both;"></div>
+    <hr />
     <table id="main" class="display">
         <thead>
             <tr>
