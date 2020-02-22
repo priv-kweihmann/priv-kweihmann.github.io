@@ -30,8 +30,22 @@
             var a = $.getJSON({
                 url: "data/" + $('#branch').val() + "/result.json",
                 success: function (data) {
+                    var selectedOption = jQuery('#tool option:selected').val();
+                    if (selectedOption == "all") selectedOption = undefined;
+                    var options = Array.from(new Set(data.data.map(obj => obj.Tool ))).sort();
+                    jQuery('#tool').empty();
+                    options.forEach(element => {
+                        jQuery('#tool').append('<option value="' + element + '">' + element + '</option>');
+                    });
+                    jQuery('#tool').append('<option value="all">all</option>');
+                    if (selectedOption) {
+                        jQuery('#tool option[value="' + selectedOption + '"]').attr('selected', 'selected');
+                    } else {
+                        jQuery('#tool option[value="all"]').attr('selected', 'selected');
+                    }
+
                     var table = $('#main').DataTable({
-                        data: data.data,
+                        data: data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined)}),
                         columns: [
                             {
                                 "className": 'details-control',
@@ -56,15 +70,15 @@
                             "Functional Error", "Functional Warning", "Functional Info",
                             "Style Error", "Style Warning", "Style Info"],
                         series: [
-                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "error" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "warning" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "security" && obj.Severity == "info" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "error" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "warning" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "functional" && obj.Severity == "info" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "error" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "warning" }).length,
-                            data.data.filter(function (obj) { return obj.Scope == "style" && obj.Severity == "info" }).length
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "security" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "security" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "security" && obj.Severity == "info" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "info" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "info" }).length
                         ]
                     };
                     var mychart = $('#chart-bar');
@@ -73,7 +87,6 @@
                     mychart.get(0).__chartist__.update(_seriesdata);
                 },
                 error: function () {
-                    console.log("error");
                     var table = $('#main').DataTable({ data: [] });
                     _seriesdata = {
                         labels: [],
@@ -133,12 +146,16 @@
     <p>Here you can see the current findings found by <a href="https://github.com/priv-kweihmann/meta-sca"></a> CI
         pipeline </p>
     <hr />
-    Get information for branch:
+    Get information for branch
     <select id="branch" onchange="reinit();">
         <option value="master" selected="selected">master</option>
         <option value="zeus">zeus</option>
         <option value="warrior">warrior</option>
         <option value="thud">thud</option>
+    </select>
+    and pick a tool
+    <select id="tool" onchange="reinit();">
+        <option value="all">all</option>
     </select>
     <hr />
     <div style="">
