@@ -68,6 +68,7 @@
                     _seriesdata = {
                         labels: ["Security Error", "Security Warning", "Security Info",
                             "Functional Error", "Functional Warning", "Functional Info",
+                            "Compliance Error", "Compliance Warning", "Compliance Info",
                             "Style Error", "Style Warning", "Style Info"],
                         series: [
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "security" && obj.Severity == "error" }).length,
@@ -76,6 +77,9 @@
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "error" }).length,
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "warning" }).length,
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "functional" && obj.Severity == "info" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "compliance" && obj.Severity == "error" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "compliance" && obj.Severity == "warning" }).length,
+                            data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "compliance" && obj.Severity == "info" }).length,
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "error" }).length,
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "warning" }).length,
                             data.data.filter(function (obj) { return (obj.Tool == selectedOption || selectedOption === undefined) && obj.Scope == "style" && obj.Severity == "info" }).length
