@@ -36,6 +36,7 @@ def extract_items(_input, base_source_path, _offset=3):
             except ClassNotFound:
                 _lexer = lexers.get_lexer_by_name("text")
             _res = copy.copy(item)
+            _res.pop("BBFiles", None)
             _res = {**_default, **_res}
             try:
                 with open(source_path) as f:
